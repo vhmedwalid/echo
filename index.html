@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#0B1226">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="الصدى">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>استوديو الصدى | Slowed · Reverb · Bass · 8D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F1EBE0; --bg2: #E6DCCB; --card: #FFFFFF; --ink: #14213D; --muted: #5B6783; --line: #D9CFBE;
+    --accent: #B8862B; --accent-ink: #FFFFFF; --chip: #EDE5D6; --track: #CFC4B0; --viz1: #14213D; --viz2: #B8862B;
+    --shadow: 0 10px 30px -18px rgba(20,33,61,.45);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0B1226; --bg2: #14213D; --card: #16213F; --ink: #F3E9DC; --muted: #9FB0D1; --line: #26345C;
+      --accent: #E3B65B; --accent-ink: #1A1204; --chip: #1F2E55; --track: #2B3B66; --viz1: #5D7BC4; --viz2: #E3B65B;
+      --shadow: 0 10px 30px -18px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0B1226; --bg2: #14213D; --card: #16213F; --ink: #F3E9DC; --muted: #9FB0D1; --line: #26345C;
+    --accent: #E3B65B; --accent-ink: #1A1204; --chip: #1F2E55; --track: #2B3B66; --viz1: #5D7BC4; --viz2: #E3B65B;
+    --shadow: 0 10px 30px -18px rgba(0,0,0,.8);
+  }
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  *, *::before, *::after { box-sizing: inherit; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink);
+    background-image: linear-gradient(180deg, var(--bg2), var(--bg) 340px);
+    background-repeat: no-repeat;
+    font-family: "IBM Plex Sans Arabic", system-ui, "Segoe UI", Tahoma, Arial, sans-serif; line-height: 1.55;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 22px 16px 60px; display: flex; flex-direction: column; gap: 14px; }
+  header { text-align: center; padding: 6px 0 4px; }
+  h1 { margin: 0; font-size: 1.7rem; font-weight: 600; }
+  .sub { margin: 4px 0 0; color: var(--muted); font-size: .95rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 16px; box-shadow: var(--shadow); }
+  .card[hidden] { display: none; }
+
+  .btn { font: inherit; font-weight: 500; cursor: pointer; border: 0; border-radius: 14px; padding: 10px 16px; color: var(--ink); background: var(--chip); touch-action: manipulation; }
+  .btn:hover { filter: brightness(.96); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.big { font-size: 1.05rem; padding: 14px 22px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .drop { text-align: center; border-style: dashed; padding: 26px 16px; }
+  .drop.over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--card)); }
+  .drop p { margin: 10px 0 0; color: var(--muted); font-size: .9rem; }
+
+  .trk { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .art { width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg, var(--viz1), var(--viz2)); display: grid; place-items: center; color: #fff; font-size: 1.4rem; flex: none; }
+  .ttl { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .trk > div:last-child { min-width: 0; }
+  .meta { color: var(--muted); font-size: .85rem; }
+  canvas#viz { width: 100%; height: 84px; display: block; border-radius: 12px; background: color-mix(in srgb, var(--chip) 60%, transparent); }
+  .seek { display: flex; align-items: center; gap: 10px; margin: 12px 0 6px; direction: ltr; font-variant-numeric: tabular-nums; color: var(--muted); font-size: .85rem; }
+  .seek input { flex: 1; }
+  .ctrl { display: flex; align-items: center; justify-content: center; gap: 12px; }
+  .play { width: 64px; height: 64px; border-radius: 50%; border: 0; cursor: pointer; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; box-shadow: 0 10px 22px -10px var(--accent); }
+  .play svg { width: 30px; height: 30px; fill: currentColor; }
+
+  input[type=range] { direction: ltr; -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; cursor: pointer; margin: 0; }
+  input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 6px; background: var(--track); }
+  input[type=range]::-moz-range-track { height: 6px; border-radius: 6px; background: var(--track); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 3px solid var(--card); margin-top: -8px; box-shadow: 0 2px 6px rgba(0,0,0,.35); }
+  input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 3px solid var(--card); }
+
+  h2 { margin: 0 0 8px; font-size: 1rem; font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font: inherit; font-size: .9rem; cursor: pointer; border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 7px 14px; touch-action: manipulation; }
+  .chip:hover { border-color: var(--accent); }
+
+  .fx-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+  .fx-head h2 { margin: 0; }
+  .fx-note { margin: 0 0 8px; color: var(--muted); font-size: .85rem; }
+  .sw { position: relative; width: 52px; height: 30px; border-radius: 999px; border: 0; cursor: pointer; background: var(--track); flex: none; transition: background .15s; }
+  .sw::after { content: ""; position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+  .sw[aria-checked="true"] { background: var(--accent); }
+  .sw[aria-checked="true"]::after { transform: translateX(-22px); }
+  .row { margin-top: 6px; }
+  .lab { display: flex; justify-content: space-between; font-size: .88rem; color: var(--muted); }
+  .lab b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .fx.off .row, .fx.off .chips { opacity: .45; }
+
+  .exp { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+  .status { min-height: 1.4em; color: var(--muted); font-size: .88rem; text-align: center; }
+  .foot { text-align: center; color: var(--muted); font-size: .82rem; }
+  .toast { position: fixed; z-index: 60; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 12px; right: 12px; margin: 0 auto; max-width: 520px; background: var(--accent); color: var(--accent-ink); padding: 11px 16px; border-radius: 14px; text-align: center; font-weight: 500; box-shadow: 0 10px 30px -10px rgba(0,0,0,.6); }
+  .toast[hidden] { display: none; }
+  @media (prefers-reduced-motion: reduce) { .sw, .sw::after { transition: none; } }
+</style>
+</head>
+<body>
+<div class="toast" id="toast" role="alert" hidden></div>
+<main class="wrap">
+  <section class="card" id="iosHint" hidden>
+    <b>ثبّته على الآيفون:</b> اضغط زر المشاركة <span aria-hidden="true">⬆︎</span> في Safari، ثم اختار <b>Add to Home Screen</b> (إضافة إلى الشاشة الرئيسية).
+    <div style="margin-top:8px"><button class="chip" id="hintClose" type="button">تمام، فهمت</button></div>
+  </section>
+  <header>
+    <h1>استوديو الصدى</h1>
+    <p class="sub">ارفع أغنيتك وعدّل عليها: Slowed · Reverb · Bass · 8D</p>
+    <p class="sub" id="offBadge" hidden style="color:var(--accent);font-weight:500">✓ جاهز للعمل بدون إنترنت</p>
+  </header>
+
+  <section class="card drop" id="drop">
+    <button class="btn primary big" id="pick" type="button">اختر أغنية من جهازك</button>
+    <p>أو اسحب الملف وارمِه هنا (MP3 / WAV / M4A / OGG أو فيديو فيه صوت). الملف بيفضل على جهازك ومش بيترفع لأي مكان.</p>
+    <p id="iosTip" hidden><b>على الآيفون:</b> لما تفتح القائمة اختار <b>Choose Files</b> (استعراض الملفات) وروح لمكان الأغنية في تطبيق «ملفات»، مش «مكتبة الصور». ولو مفيش صوت، اتأكد إن مفتاح الصامت مش شغال.</p>
+    <input type="file" id="file" hidden>
+  </section>
+
+  <section class="card" id="player" hidden>
+    <div class="trk">
+      <div class="art" aria-hidden="true">♪</div>
+      <div><div class="ttl" id="title"></div><div class="meta" id="meta"></div></div>
+    </div>
+    <canvas id="viz" aria-hidden="true"></canvas>
+    <div class="seek">
+      <span id="tcur">0:00</span>
+      <input type="range" id="seek" min="0" max="1000" value="0" aria-label="موضع التشغيل">
+      <span id="tdur">0:00</span>
+    </div>
+    <div class="ctrl">
+      <button class="play" id="play" type="button" aria-label="تشغيل"></button>
+      <button class="chip" id="loop" type="button" aria-pressed="false">تكرار</button>
+      <button class="chip" id="change" type="button">تغيير الأغنية</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>إعدادات جاهزة</h2>
+    <div class="chips" id="presets">
+      <button class="chip" data-p="orig" type="button">الأصلي</button>
+      <button class="chip" data-p="slowrev" type="button">Slowed + Reverb</button>
+      <button class="chip" data-p="bass" type="button">Bass Boosted</button>
+      <button class="chip" data-p="d8" type="button">8D</button>
+      <button class="chip" data-p="lofi" type="button">Chill</button>
+    </div>
+  </section>
+
+  <section class="card fx off" id="fxSpeed">
+    <div class="fx-head"><h2>Slowed &middot; السرعة</h2><button class="sw" role="switch" aria-checked="false" aria-label="تفعيل تغيير السرعة" id="swSpeed" type="button"></button></div>
+    <p class="fx-note">أقل من 1.00× = أبطأ ونغمة أغلظ (زي أغاني Slowed). أكتر من 1.00× = أسرع ونغمة أحَدّ.</p>
+    <div class="row"><div class="lab"><span>السرعة</span><b id="vSpeed">0.85×</b></div><input type="range" id="speed" min="0.5" max="1.5" step="0.01" value="0.85"></div>
+  </section>
+
+  <section class="card fx off" id="fxRev">
+    <div class="fx-head"><h2>Reverb &middot; الصدى</h2><button class="sw" role="switch" aria-checked="false" aria-label="تفعيل الصدى" id="swRev" type="button"></button></div>
+    <div class="chips" id="spaces">
+      <button class="chip" data-s="room" type="button">غرفة</button>
+      <button class="chip" data-s="hall" type="button">قاعة</button>
+      <button class="chip" data-s="cath" type="button">كاتدرائية</button>
+      <button class="chip" data-s="bath" type="button">حمّام</button>
+      <button class="chip" data-s="plate" type="button">Plate</button>
+    </div>
+    <div class="row"><div class="lab"><span>كمية الصدى</span><b id="vRv">40%</b></div><input type="range" id="rv" min="0" max="100" step="1" value="40"></div>
+    <div class="row"><div class="lab"><span>حجم المكان</span><b id="vSize">3.0 ث</b></div><input type="range" id="size" min="0.4" max="8" step="0.1" value="3"></div>
+    <div class="row"><div class="lab"><span>نعومة الصوت</span><b id="vDamp">50%</b></div><input type="range" id="damp" min="0" max="95" step="1" value="50"></div>
+    <div class="row"><div class="lab"><span>تأخير الصدى (وضوح الصوت)</span><b id="vPre">22 مللي</b></div><input type="range" id="pre" min="0" max="120" step="1" value="22"></div>
+  </section>
+
+  <section class="card fx off" id="fxBass">
+    <div class="fx-head"><h2>Bass &middot; البيس</h2><button class="sw" role="switch" aria-checked="false" aria-label="تفعيل البيس" id="swBass" type="button"></button></div>
+    <div class="row"><div class="lab"><span>قوة البيس</span><b id="vBass">50%</b></div><input type="range" id="bass" min="0" max="100" step="1" value="50"></div>
+  </section>
+
+  <section class="card fx off" id="fx8d">
+    <div class="fx-head"><h2>8D &middot; صوت دائري</h2><button class="sw" role="switch" aria-checked="false" aria-label="تفعيل 8D" id="sw8d" type="button"></button></div>
+    <p class="fx-note">الصوت بيلف حواليك. استخدم سماعات للحصول على التأثير الصح.</p>
+    <div class="row"><div class="lab"><span>قوة التأثير</span><b id="v8">100%</b></div><input type="range" id="d8" min="0" max="100" step="1" value="100"></div>
+    <div class="row"><div class="lab"><span>سرعة الدوران (لفة كل)</span><b id="vPer">8 ث</b></div><input type="range" id="per" min="3" max="20" step="0.5" value="8"></div>
+  </section>
+
+  <section class="card">
+    <div class="row" style="margin-top:0"><div class="lab"><span>مستوى الصوت</span><b id="vVol">80%</b></div><input type="range" id="vol" min="0" max="100" step="1" value="80"></div>
+  </section>
+
+  <section class="card exp" id="expCard">
+    <button class="btn primary big" id="export" type="button" disabled>تحميل الأغنية بعد التعديل</button>
+    <div class="status" id="status" role="status" aria-live="polite">اختار أغنية الأول عشان تبدأ.</div>
+    <div class="foot" id="expNote">التحميل بيطلع ملف ZIP جواه ملف WAV بجودة كاملة (فُكّه وشغّله).</div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var AC = window.AudioContext || window.webkitAudioContext;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var S = { speedOn: false, speed: 0.85, rvOn: false, rv: 40, size: 3, damp: 50, bassOn: false, bass: 50, d8On: false, d8: 100, per: 8, vol: 80, loop: false, fadeOn: true, fade: 2.5, pre: 22 };
+  var ctx = null, nodes = null, buffer = null, srcNode = null, srcGain = null, playing = false, pos = 0, lastT = 0, seeking = false;
+  var trackName = 'song', dl = null, standalone = false, irTimer = 0, busy = false;
+
+  /* ---------- أدوات ---------- */
+  function fmtT(s) { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+  var toastT = 0;
+  function status(t) {
+    $('status').textContent = t;
+    var el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toastT);
+    if (!/…$/.test(t)) toastT = setTimeout(function () { el.hidden = true; }, 7000);
+  }
+  window.addEventListener('error', function (e) { status('حصلت مشكلة: ' + (e.message || 'خطأ غير معروف')); });
+  window.addEventListener('unhandledrejection', function (e) { status('حصلت مشكلة: ' + ((e.reason && (e.reason.message || e.reason.name)) || 'خطأ غير معروف')); });
+  function curRate() { return S.speedOn ? S.speed : 1; }
+
+  function makeIR(c, sec, damp) {
+    var sr = c.sampleRate, len = Math.max(4096, Math.floor(sr * (sec + 0.35))), buf = c.createBuffer(2, len, sr);
+    var dk = damp / 100, bands = [90, 180, 360, 720, 1440, 2880, 5760, 11000];
+    function bp(x, f0) {
+      var w = 2 * Math.PI * f0 / sr, cs = Math.cos(w), al = Math.sin(w) / 2.2;
+      var b0 = al / (1 + al), b2 = -al / (1 + al), a1 = -2 * cs / (1 + al), a2 = (1 - al) / (1 + al);
+      var y = new Float32Array(x.length), x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+      for (var i = 0; i < x.length; i++) {
+        var xi = x[i], yi = b0 * xi + b2 * x2 - a1 * y1 - a2 * y2;
+        x2 = x1; x1 = xi; y2 = y1; y1 = yi; y[i] = yi;
+      }
+      return y;
+    }
+    function rtFor(f) {
+      var low = f < 200 ? 1.15 : (f < 400 ? 1.07 : 1), oct = Math.max(0, Math.log(f / 700) / Math.LN2);
+      return sec * low / (1 + (0.12 + dk * 1.6) * oct);
+    }
+    for (var ch = 0; ch < 2; ch++) {
+      var d = buf.getChannelData(ch), seed = ch ? 0x7654321 : 0x1234567;
+      function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
+      var noise = new Float32Array(len);
+      for (var i = 0; i < len; i++) noise[i] = (rnd() + rnd() + rnd() - 1.5) * 2;
+      bands.forEach(function (f) {
+        var y = bp(noise, f), wgt = Math.pow(f / 700, -0.1);
+        var rr = Math.exp(-6.9078 / rtFor(f) / sr), ur = Math.exp(-1 / (0.025 * sr)), g = 1, u = 1;
+        for (var j = 0; j < len; j++) { d[j] += y[j] * g * (1 - u) * wgt; g *= rr; u *= ur; }
+      });
+      // انعكاسات مبكرة منفصلة (حيطان الغرفة)
+      for (var k = 0; k < 18; k++) {
+        var tm = 0.004 + Math.pow(k / 17, 1.6) * 0.075 + rnd() * 0.003 + (ch ? 0.0007 * (k % 3) : 0);
+        var ix = Math.floor(tm * sr), amp = 2.4 * Math.pow(0.84, k) * (rnd() < 0.5 ? -1 : 1);
+        if (ix + 1 < len) { d[ix] += amp; d[ix + 1] += amp * 0.5; if (ix > 0) d[ix - 1] += amp * 0.3; }
+      }
+      var tail = Math.floor(len * 0.05);
+      for (var q = 0; q < tail; q++) d[len - 1 - q] *= q / tail;
+    }
+    return buf;
+  }
+
+  /* ---------- سلسلة المعالجة (تُستخدم للتشغيل والتصدير) ---------- */
+  function buildChain(c) {
+    var n = {};
+    n.input = c.createGain();
+    n.low = c.createBiquadFilter(); n.low.type = 'lowshelf'; n.low.frequency.value = 110;
+    n.peak = c.createBiquadFilter(); n.peak.type = 'peaking'; n.peak.frequency.value = 58; n.peak.Q.value = 0.9;
+    n.satLP = c.createBiquadFilter(); n.satLP.type = 'lowpass'; n.satLP.frequency.value = 140;
+    n.sat = c.createWaveShaper();
+    var N = 1024, curve = new Float32Array(N), k = 3;
+    for (var i = 0; i < N; i++) { var x = i / (N - 1) * 2 - 1; curve[i] = Math.tanh(k * x) / Math.tanh(k); }
+    n.sat.curve = curve; n.sat.oversample = '2x';
+    n.satG = c.createGain(); n.bassSum = c.createGain();
+    n.input.connect(n.low); n.low.connect(n.peak); n.peak.connect(n.bassSum);
+    n.input.connect(n.satLP); n.satLP.connect(n.sat); n.sat.connect(n.satG); n.satG.connect(n.bassSum);
+
+    n.d8Dry = c.createGain(); n.d8Wet = c.createGain(); n.mix = c.createGain();
+    n.bassSum.connect(n.d8Dry); n.d8Dry.connect(n.mix);
+    var p = c.createPanner(); p.panningModel = 'HRTF'; p.distanceModel = 'inverse'; p.refDistance = 1; p.rolloffFactor = 0;
+    n.lfoS = c.createOscillator(); n.lfoS.type = 'sine';
+    if (p.positionX) {
+      n.lfoC = c.createOscillator();
+      n.lfoC.setPeriodicWave(c.createPeriodicWave(new Float32Array([0, 1]), new Float32Array([0, 0])));
+      var gx = c.createGain(), gz = c.createGain(); gx.gain.value = 1; gz.gain.value = 1;
+      n.lfoS.connect(gx); gx.connect(p.positionX); n.lfoC.connect(gz); gz.connect(p.positionZ);
+      p.positionX.value = 0; p.positionZ.value = 0; p.positionY.value = 0;
+      n.bassSum.connect(p); p.connect(n.d8Wet);
+    } else {
+      var sp = c.createStereoPanner(); n.lfoS.connect(sp.pan);
+      n.bassSum.connect(sp); sp.connect(n.d8Wet);
+    }
+    n.d8Wet.connect(n.mix);
+
+    n.dryG = c.createGain(); n.wetG = c.createGain(); n.conv = c.createConvolver(); n.master = c.createGain();
+    n.mix.connect(n.dryG); n.dryG.connect(n.master);
+    n.pre = c.createDelay(0.5);
+    n.hp = c.createBiquadFilter(); n.hp.type = 'highpass'; n.hp.frequency.value = 150; n.hp.Q.value = 0.7;
+    n.lp = c.createBiquadFilter(); n.lp.type = 'lowpass'; n.lp.frequency.value = 9000; n.lp.Q.value = 0.6;
+    n.mix.connect(n.pre); n.pre.connect(n.conv); n.conv.connect(n.hp); n.hp.connect(n.lp); n.lp.connect(n.wetG); n.wetG.connect(n.master);
+    n.lim = c.createDynamicsCompressor();
+    n.lim.threshold.value = -2; n.lim.knee.value = 0; n.lim.ratio.value = 20; n.lim.attack.value = 0.002; n.lim.release.value = 0.15;
+    n.an = c.createAnalyser(); n.an.fftSize = 128; n.an.smoothingTimeConstant = 0.78;
+    n.master.connect(n.lim); n.lim.connect(n.an); n.an.connect(c.destination);
+    n.lfoS.start(0); if (n.lfoC) n.lfoC.start(0);
+    n.irKey = '';
+    return n;
+  }
+
+  function apply(n, c, live) {
+    var t = c.currentTime;
+    function set(p, v) { if (live) p.setTargetAtTime(v, t, 0.04); else p.value = v; }
+    var b = S.bassOn ? S.bass / 100 : 0;
+    set(n.low.gain, b * 15); set(n.peak.gain, b * 5); set(n.satG.gain, b * 0.4);
+    var d = S.d8On ? S.d8 / 100 : 0;
+    set(n.d8Wet.gain, d); set(n.d8Dry.gain, 1 - d);
+    var f = 1 / S.per; set(n.lfoS.frequency, f); if (n.lfoC) set(n.lfoC.frequency, f);
+    var a = S.rvOn ? S.rv / 100 : 0;
+    set(n.wetG.gain, a * 1.2); set(n.pre.delayTime, S.pre / 1000); set(n.lp.frequency, 13000 - S.damp * 90); set(n.dryG.gain, 1 - 0.4 * a);
+    set(n.master.gain, (S.vol / 100) * (1 - b * 0.2));
+  }
+
+  function setIR(n, c, live) {
+    var key = S.size.toFixed(1) + '|' + S.damp;
+    if (n.irKey === key) return;
+    var ir = makeIR(c, S.size, S.damp);
+    if (live && n.irKey) {
+      var t = c.currentTime; n.wetG.gain.cancelScheduledValues(t); n.wetG.gain.setTargetAtTime(0, t, 0.01);
+      setTimeout(function () { n.conv.buffer = ir; n.irKey = key; apply(n, c, true); }, 60);
+    } else { n.conv.buffer = ir; n.irKey = key; }
+  }
+
+  var keepEl = null, iosUnlocked = false, IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  function unlockIOS() {
+    if (iosUnlocked || !IS_IOS) return; iosUnlocked = true;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+    try {
+      var n = 441, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+      var ws = function (o, t) { for (var i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+      ws(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); ws(8, 'WAVE'); ws(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+      v.setUint16(22, 1, true); v.setUint32(24, 44100, true); v.setUint32(28, 88200, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+      ws(36, 'data'); v.setUint32(40, n * 2, true);
+      var a = new Audio(URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }))); a.loop = true; keepEl = a;
+      var pr = a.play(); if (pr && pr.catch) pr.catch(function () {});
+    } catch (e) {}
+  }
+  function ensureCtx() {
+    if (!AC) { status('المتصفح ده مش بيدعم معالجة الصوت.'); return false; }
+    unlockIOS();
+    if (!ctx) { ctx = new AC(); nodes = buildChain(ctx); setIR(nodes, ctx, false); apply(nodes, ctx, false);
+      ctx.onstatechange = function () { if (playing && ctx.state !== 'running' && document.visibilityState === 'visible') ctx.resume(); };
+    }
+    if (ctx.state === 'suspended') ctx.resume();
+    return true;
+  }
+  function live() {
+    if (!nodes) return;
+    apply(nodes, ctx, true);
+    if (srcNode) srcNode.playbackRate.setTargetAtTime(curRate(), ctx.currentTime, 0.05);
+  }
+  function liveIR() {
+    if (!nodes) return;
+    clearTimeout(irTimer); irTimer = setTimeout(function () { setIR(nodes, ctx, true); }, 140);
+  }
+
+  /* ---------- التشغيل ---------- */
+  var PLAY = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>', PAUSE = '<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+  function setPlayUI() { var b = $('play'); b.innerHTML = playing ? PAUSE : PLAY; b.setAttribute('aria-label', playing ? 'إيقاف مؤقت' : 'تشغيل');
+    if ('mediaSession' in navigator) { try { navigator.mediaSession.playbackState = playing ? 'playing' : 'paused'; } catch (e) {} }
+  }
+  function stopSrc() { if (srcNode) { try { srcNode.onended = null; srcNode.stop(); } catch (e) {} try { srcNode.disconnect(); } catch (e) {} srcNode = null; }
+    if (srcGain) { try { srcGain.disconnect(); } catch (e) {} srcGain = null; } }
+  function startPlay(from, fade) {
+    if (!buffer || !ensureCtx()) return;
+    if (keepEl) { var kp = keepEl.play(); if (kp && kp.catch) kp.catch(function () {}); }
+    stopSrc();
+    srcNode = ctx.createBufferSource(); srcNode.buffer = buffer; srcNode.loop = S.loop;
+    srcNode.playbackRate.value = curRate();
+    srcGain = ctx.createGain(); srcNode.connect(srcGain); srcGain.connect(nodes.input);
+    if (fade && S.fadeOn) { var t0 = ctx.currentTime; srcGain.gain.setValueAtTime(0.06, t0); srcGain.gain.exponentialRampToValueAtTime(1, t0 + S.fade); }
+    pos = Math.min(Math.max(0, from), buffer.duration - 0.01); srcNode.start(0, pos);
+    var mine = srcNode; srcNode.onended = function () { if (srcNode === mine && playing && !S.loop) { playing = false; pos = 0; setPlayUI(); } };
+    lastT = ctx.currentTime; playing = true; setPlayUI();
+  }
+  function pausePlay() { if (!playing) return; playing = false; stopSrc(); setPlayUI(); }
+  function togglePlay() {
+    if (!buffer) return;
+    if (playing) pausePlay(); else startPlay(pos >= buffer.duration - 0.05 ? 0 : pos, true);
+  }
+  $('play').onclick = togglePlay;
+  $('loop').onclick = function () { S.loop = !S.loop; this.setAttribute('aria-pressed', S.loop ? 'true' : 'false'); if (srcNode) srcNode.loop = S.loop; };
+  document.addEventListener('keydown', function (e) {
+    if (e.code === 'Space' && !/INPUT|BUTTON|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); togglePlay(); }
+  });
+
+  var seekEl = $('seek');
+  seekEl.addEventListener('pointerdown', function () { seeking = true; });
+  seekEl.addEventListener('input', function () { if (buffer) $('tcur').textContent = fmtT(seekEl.value / 1000 * buffer.duration); });
+  seekEl.addEventListener('change', function () {
+    seeking = false; if (!buffer) return;
+    var p = seekEl.value / 1000 * buffer.duration;
+    if (playing) startPlay(p); else pos = p;
+  });
+
+  /* ---------- تحميل الملف ---------- */
+  function readSlice(blob) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader(); r.onload = function () { res(r.result); }; r.onerror = function () { rej(r.error || new Error('read')); }; r.readAsArrayBuffer(blob);
+    });
+  }
+  function readFile(file) {
+    var tries = [
+      function () { return file.arrayBuffer ? file.arrayBuffer() : Promise.reject(new Error('no arrayBuffer')); },
+      function () { return readSlice(file); },
+      function () { var u = URL.createObjectURL(file); return fetch(u).then(function (r) { return r.arrayBuffer(); }).then(function (b) { URL.revokeObjectURL(u); return b; }); },
+      function () {
+        var size = 1 << 20, n = Math.ceil(file.size / size), parts = [], i = 0;
+        function next() {
+          if (i >= n) { var out = new Uint8Array(file.size), o = 0; parts.forEach(function (p) { out.set(new Uint8Array(p), o); o += p.byteLength; }); return out.buffer; }
+          var blob = file.slice(i * size, (i + 1) * size); i++;
+          return readSlice(blob).then(function (b) { parts.push(b); return next(); });
+        }
+        return Promise.resolve().then(next);
+      }
+    ], lastErr = null, k = 0;
+    function run() {
+      if (k >= tries.length) return Promise.reject(lastErr || new Error('read'));
+      var f = tries[k++];
+      return Promise.resolve().then(f).catch(function (e) { lastErr = e; return run(); });
+    }
+    return run();
+  }
+  function decodeBuffer(ab, file) {
+    ctx.decodeAudioData(ab, function (buf) {
+      pausePlay(); buffer = buf; pos = 0;
+      trackName = (file.name || 'song').replace(/\.[^.]+$/, '');
+      $('title').textContent = trackName;
+      $('meta').textContent = 'المدة ' + fmtT(buf.duration) + ' · ' + (buf.sampleRate / 1000).toFixed(1) + ' kHz';
+      $('tdur').textContent = fmtT(buf.duration); setMedia();
+      $('player').hidden = false; $('drop').hidden = true;
+      $('export').disabled = !(dl || standalone); setPlayUI();
+      status('جاهزة. عدّل واسمع، وبعدين حمّلها.');
+      startPlay(0, true);
+    }, function () { status('ما قدرتش أفتح الملف ده (' + (file.type || 'نوع غير معروف') + '). جرّب MP3 أو M4A أو WAV، ولو فيديو اتأكد إن فيه صوت.'); });
+  }
+  function loadFile(file) {
+    if (!file || !ensureCtx()) return;
+    status('جارٍ تحليل الملف…');
+    readFile(file).then(function (ab) { decodeBuffer(ab, file); }, function (err) {
+      var name = (err && err.name) || 'خطأ';
+      if (location.protocol === 'file:') status('ما قدرتش أقرا الملف (' + name + '). الصفحة مفتوحة كمعاينة من تطبيق Files، وده بيمنع قراءة الأغاني. افتحها من لينك في Safari مش من Files.');
+      else status('ما قدرتش أقرا الملف (' + name + '). لو الملف على iCloud نزّله على الموبايل الأول.');
+    });
+  }
+  $('pick').onclick = function () { ensureCtx(); $('file').value = ''; $('file').click(); };
+  $('change').onclick = function () { ensureCtx(); $('file').value = ''; $('file').click(); };
+  $('file').onchange = function () { if (this.files && this.files[0]) loadFile(this.files[0]); };
+  var dz = $('drop');
+  ['dragenter', 'dragover'].forEach(function (ev) { document.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add('over'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { document.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove('over'); }); });
+  document.addEventListener('drop', function (e) { var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) loadFile(f); });
+
+  /* ---------- ربط الواجهة ---------- */
+  function fx(id, key) { var el = $(id); el.classList.toggle('off', !S[key]); }
+  function setSwitch(id, card, key) {
+    var sw = $(id);
+    sw.setAttribute('aria-checked', S[key] ? 'true' : 'false'); fx(card, key);
+  }
+  function bindSwitch(id, card, key, after) {
+    $(id).onclick = function () {
+      ensureCtx(); S[key] = !S[key]; setSwitch(id, card, key); live(); if (after) after();
+    };
+  }
+  bindSwitch('swSpeed', 'fxSpeed', 'speedOn');
+  bindSwitch('swRev', 'fxRev', 'rvOn', function () { if (S.rvOn) liveIR(); });
+  bindSwitch('swBass', 'fxBass', 'bassOn');
+  bindSwitch('sw8d', 'fx8d', 'd8On');
+
+  function bindRange(id, key, label, fmt, kind) {
+    var el = $(id);
+    el.addEventListener('input', function () {
+      S[key] = parseFloat(el.value); $(label).textContent = fmt(S[key]);
+      // تحريك المنزلق يفعّل التأثير تلقائيًا
+      var map = { speed: ['speedOn', 'swSpeed', 'fxSpeed'], rv: ['rvOn', 'swRev', 'fxRev'], size: ['rvOn', 'swRev', 'fxRev'], damp: ['rvOn', 'swRev', 'fxRev'], pre: ['rvOn', 'swRev', 'fxRev'], bass: ['bassOn', 'swBass', 'fxBass'], d8: ['d8On', 'sw8d', 'fx8d'], per: ['d8On', 'sw8d', 'fx8d'] }[key];
+      if (map && !S[map[0]]) { ensureCtx(); S[map[0]] = true; setSwitch(map[1], map[2], map[0]); }
+      live(); if (kind === 'ir') liveIR();
+    });
+  }
+  bindRange('speed', 'speed', 'vSpeed', function (v) { return v.toFixed(2) + '×'; });
+  bindRange('rv', 'rv', 'vRv', function (v) { return Math.round(v) + '%'; });
+  bindRange('size', 'size', 'vSize', function (v) { return v.toFixed(1) + ' ث'; }, 'ir');
+  bindRange('damp', 'damp', 'vDamp', function (v) { return Math.round(v) + '%'; }, 'ir');
+  bindRange('pre', 'pre', 'vPre', function (v) { return Math.round(v) + ' مللي'; });
+  bindRange('bass', 'bass', 'vBass', function (v) { return Math.round(v) + '%'; });
+  bindRange('d8', 'd8', 'v8', function (v) { return Math.round(v) + '%'; });
+  bindRange('per', 'per', 'vPer', function (v) { return v + ' ث'; });
+  $('vol').addEventListener('input', function () { S.vol = parseFloat(this.value); $('vVol').textContent = Math.round(S.vol) + '%'; live(); });
+
+  function syncUI() {
+    $('speed').value = S.speed; $('vSpeed').textContent = S.speed.toFixed(2) + '×';
+    $('rv').value = S.rv; $('vRv').textContent = Math.round(S.rv) + '%';
+    $('size').value = S.size; $('vSize').textContent = S.size.toFixed(1) + ' ث';
+    $('damp').value = S.damp; $('vDamp').textContent = Math.round(S.damp) + '%';
+    $('pre').value = S.pre; $('vPre').textContent = Math.round(S.pre) + ' مللي';
+    $('bass').value = S.bass; $('vBass').textContent = Math.round(S.bass) + '%';
+    $('d8').value = S.d8; $('v8').textContent = Math.round(S.d8) + '%';
+    $('per').value = S.per; $('vPer').textContent = S.per + ' ث';
+    setSwitch('swSpeed', 'fxSpeed', 'speedOn'); setSwitch('swRev', 'fxRev', 'rvOn'); setSwitch('swBass', 'fxBass', 'bassOn'); setSwitch('sw8d', 'fx8d', 'd8On');
+  }
+  var OFF = { speedOn: false, rvOn: false, bassOn: false, d8On: false };
+  var PRESETS = {
+    orig: {},
+    slowrev: { speedOn: true, speed: 0.85, rvOn: true, rv: 45, size: 3.5, damp: 50, pre: 30, bassOn: true, bass: 25 },
+    bass: { bassOn: true, bass: 80 },
+    d8: { d8On: true, d8: 100, per: 8, rvOn: true, rv: 25, size: 2, damp: 45, pre: 15 },
+    lofi: { speedOn: true, speed: 0.92, rvOn: true, rv: 30, size: 2.5, damp: 75, pre: 18, bassOn: true, bass: 30 }
+  };
+  $('presets').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-p]'); if (!b) return;
+    ensureCtx(); Object.assign(S, OFF, PRESETS[b.dataset.p]); syncUI(); live(); liveIR();
+  });
+  var SPACES = { room: [1.0, 60, 8], hall: [3.0, 40, 25], cath: [6.0, 30, 45], bath: [1.6, 10, 6], plate: [2.2, 20, 12] };
+  $('spaces').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-s]'); if (!b) return;
+    ensureCtx(); var sp = SPACES[b.dataset.s]; S.size = sp[0]; S.damp = sp[1]; S.pre = sp[2]; S.rvOn = true; syncUI(); live(); liveIR();
+  });
+
+  /* ---------- المرئيات + تحديث الوقت ---------- */
+  var cv = $('viz'), cg = cv.getContext('2d'), fdata = new Uint8Array(64);
+  function sizeCanvas() { var r = cv.getBoundingClientRect(), d = window.devicePixelRatio || 1; cv.width = Math.max(1, r.width * d); cv.height = Math.max(1, r.height * d); }
+  window.addEventListener('resize', sizeCanvas); sizeCanvas();
+  function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#999'; }
+  function frame() {
+    requestAnimationFrame(frame);
+    if (playing && ctx) {
+      var now = ctx.currentTime; pos += (now - lastT) * curRate(); lastT = now;
+      if (buffer && pos >= buffer.duration) {
+        if (S.loop) pos = pos % buffer.duration; else { pos = 0; playing = false; stopSrc(); setPlayUI(); }
+      }
+    }
+    if (buffer && !seeking) { seekEl.value = Math.round(pos / buffer.duration * 1000); $('tcur').textContent = fmtT(pos); }
+    if ($('player').hidden) return;
+    var W = cv.width, H = cv.height;
+    cg.clearRect(0, 0, W, H);
+    if (nodes && playing) nodes.an.getByteFrequencyData(fdata); else for (var k = 0; k < fdata.length; k++) fdata[k] *= 0.9;
+    var n = 40, bw = W / n, c1 = cssVar('--viz1'), c2 = cssVar('--viz2');
+    var gr = cg.createLinearGradient(0, H, 0, 0); gr.addColorStop(0, c1); gr.addColorStop(1, c2); cg.fillStyle = gr;
+    for (var i = 0; i < n; i++) {
+      var v = fdata[Math.floor(i * 0.9 * fdata.length / n)] / 255, h = Math.max(3, v * H * 0.92);
+      cg.fillRect(i * bw + bw * 0.15, H - h, bw * 0.7, h);
+    }
+  }
+  setPlayUI(); frame();
+
+  /* ---------- التصدير ---------- */
+  var CRC = (function () { var t = new Uint32Array(256); for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(u8) { var c = 0xFFFFFFFF; for (var i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  function encodeWav(ab) {
+    var ch = Math.min(2, ab.numberOfChannels), len = ab.length, sr = ab.sampleRate, bytes = len * ch * 2;
+    var out = new ArrayBuffer(44 + bytes), v = new DataView(out);
+    function ws(o, s) { for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+    ws(0, 'RIFF'); v.setUint32(4, 36 + bytes, true); ws(8, 'WAVE'); ws(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+    v.setUint16(22, ch, true); v.setUint32(24, sr, true); v.setUint32(28, sr * ch * 2, true); v.setUint16(32, ch * 2, true); v.setUint16(34, 16, true);
+    ws(36, 'data'); v.setUint32(40, bytes, true);
+    var d0 = ab.getChannelData(0), d1 = ch > 1 ? ab.getChannelData(1) : null, o = 44;
+    for (var i = 0; i < len; i++) {
+      var s = Math.max(-1, Math.min(1, d0[i])); v.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7FFF, true); o += 2;
+      if (d1) { s = Math.max(-1, Math.min(1, d1[i])); v.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7FFF, true); o += 2; }
+    }
+    return new Uint8Array(out);
+  }
+  function makeZip(name, data) {
+    var nm = new TextEncoder().encode(name), crc = crc32(data), size = data.length;
+    var lh = new Uint8Array(30 + nm.length), lv = new DataView(lh.buffer);
+    lv.setUint32(0, 0x04034b50, true); lv.setUint16(4, 20, true); lv.setUint16(6, 0x0800, true); lv.setUint16(8, 0, true);
+    lv.setUint16(10, 0, true); lv.setUint16(12, 0x21, true); lv.setUint32(14, crc, true); lv.setUint32(18, size, true); lv.setUint32(22, size, true);
+    lv.setUint16(26, nm.length, true); lv.setUint16(28, 0, true); lh.set(nm, 30);
+    var cd = new Uint8Array(46 + nm.length), cv2 = new DataView(cd.buffer);
+    cv2.setUint32(0, 0x02014b50, true); cv2.setUint16(4, 20, true); cv2.setUint16(6, 20, true); cv2.setUint16(8, 0x0800, true); cv2.setUint16(10, 0, true);
+    cv2.setUint16(12, 0, true); cv2.setUint16(14, 0x21, true); cv2.setUint32(16, crc, true); cv2.setUint32(20, size, true); cv2.setUint32(24, size, true);
+    cv2.setUint16(28, nm.length, true); cd.set(nm, 46);
+    var eo = new Uint8Array(22), ev = new DataView(eo.buffer);
+    ev.setUint32(0, 0x06054b50, true); ev.setUint16(8, 1, true); ev.setUint16(10, 1, true); ev.setUint32(12, cd.length, true); ev.setUint32(16, lh.length + size, true);
+    return new Blob([lh, data, cd, eo], { type: 'application/zip' });
+  }
+  function suffix() {
+    var p = []; if (S.speedOn) p.push('slowed'); if (S.rvOn) p.push('reverb'); if (S.bassOn) p.push('bass'); if (S.d8On) p.push('8d');
+    return p.length ? p.join('+') : 'edit';
+  }
+  $('export').onclick = async function () {
+    if (!buffer || (!dl && !standalone) || busy) return;
+    busy = true; this.disabled = true; status('جارٍ تجهيز الملف… ممكن ياخد شوية حسب طول الأغنية.');
+    try {
+      var rate = curRate(), sr = buffer.sampleRate;
+      var tail = S.rvOn ? S.size + 0.5 : 0.3;
+      var len = Math.ceil((buffer.duration / rate + tail) * sr);
+      var OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      var off = new OAC(2, len, sr), ch = buildChain(off);
+      setIR(ch, off, false); apply(ch, off, false);
+      var s = off.createBufferSource(); s.buffer = buffer; s.playbackRate.value = rate;
+      var pg = off.createGain(); s.connect(pg); pg.connect(ch.input);
+      if (S.fadeOn) { pg.gain.setValueAtTime(0.06, 0); pg.gain.exponentialRampToValueAtTime(1, S.fade); }
+      s.start(0);
+      var rendered = await off.startRendering();
+      var wav = encodeWav(rendered);
+      var base = trackName.replace(/[\\/:*?"<>|]/g, '').trim() || 'song';
+      var fname = base + ' (' + suffix() + ')';
+      var zip = dl ? makeZip(fname + '.wav', wav) : null;
+      if (dl) { await dl.save({ filename: fname + '.zip', data: zip }); }
+      else {
+        var wavBlob = new Blob([wav], { type: 'audio/wav' }), fileObj = null;
+        try { fileObj = new File([wavBlob], fname + '.wav', { type: 'audio/wav' }); } catch (e2) {}
+        if (fileObj && navigator.canShare && navigator.canShare({ files: [fileObj] })) {
+          await navigator.share({ files: [fileObj], title: fname });
+        } else {
+          var url = URL.createObjectURL(wavBlob), a = document.createElement('a');
+          a.href = url; a.download = fname + '.wav'; document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+        }
+      }
+      status(dl ? 'تمام! الملف اتحفظ. فُك الـ ZIP وهتلاقي ملف WAV.' : 'تمام! الملف جاهز. على الآيفون اختار "حفظ في الملفات" من القائمة.');
+    } catch (e) {
+      status(e && (e.code === 'declined' || e.name === 'AbortError') ? 'اتلغى التحميل.' : 'حصلت مشكلة في التحميل. جرّب تاني.');
+    }
+    busy = false; this.disabled = !buffer || !(dl || standalone);
+  };
+  if (IS_IOS) { $('iosTip').hidden = false; }
+  // أزرار شاشة القفل + استكمال التشغيل بعد الرجوع للصفحة
+  function setMedia() {
+    if (!('mediaSession' in navigator) || typeof MediaMetadata === 'undefined') return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({ title: trackName, artist: 'استوديو الصدى' });
+      navigator.mediaSession.setActionHandler('play', function () { if (!playing) togglePlay(); });
+      navigator.mediaSession.setActionHandler('pause', function () { if (playing) togglePlay(); });
+      navigator.mediaSession.setActionHandler('stop', function () { pausePlay(); });
+      navigator.mediaSession.setActionHandler('seekto', function (d) {
+        if (buffer && d && d.seekTime != null) { if (playing) startPlay(d.seekTime); else pos = d.seekTime; }
+      });
+    } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible' || !ctx || !playing) return;
+    if (keepEl) { var kp2 = keepEl.play(); if (kp2 && kp2.catch) kp2.catch(function () {}); }
+    if (ctx.state !== 'running') ctx.resume();
+  });
+  function noClaude() { standalone = true; $('export').disabled = !buffer; $('expNote').textContent = 'بيتحفظ الملف بصيغة WAV بجودة كاملة. على الآيفون هتظهر قائمة المشاركة، اختار حفظ في الملفات.'; }
+  if (window.claude && typeof window.claude.use === 'function') {
+    window.claude.use('downloads').then(function (m) {
+      if (m) { dl = m; $('export').disabled = !buffer; } else noClaude();
+    }, noClaude);
+  } else noClaude();
+  // تلميح التثبيت على الآيفون + العمل بدون إنترنت
+  var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (isIOS && !window.navigator.standalone) { $('iosHint').hidden = false; }
+  $('hintClose').onclick = function () { $('iosHint').hidden = true; };
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+    navigator.serviceWorker.ready.then(function () { $('offBadge').hidden = false; });
+  }
+})();
+</script>
+</body>
+</html>
